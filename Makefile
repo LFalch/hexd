@@ -16,8 +16,7 @@ bin/release: bin
 	mkdir bin/release || true
 
 bin/release/hexd: bin/release hexd.c
-	$(CC) -o $@ hexd.c $(CFLAGS) $(RLS)
-	strip $@
+	$(CC) -s -o $@ hexd.c $(CFLAGS) $(RLS)
 
 release: bin/release/hexd
 
