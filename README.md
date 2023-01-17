@@ -1,2 +1,3 @@
 # hexd
-hexdump -C written in C
+
+hexdump -C written in Zig
