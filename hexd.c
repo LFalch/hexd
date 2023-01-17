@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 // Do not run with spaces > 48
 void printspaces(int spaces) {
@@ -29,7 +30,9 @@ int main(int argc, char const* argv[]) {
     }
 
     // Unsigned so that bytes over 0x7f don't show up weirdly
-    unsigned char bytes[16];
+    unsigned char bytes[16] = {1};
+    unsigned char last_bytes[16] = {0};
+    bool last_was_a_repeat = false;
     int index = 0, read;
 
     for (;; index += read) {
@@ -42,6 +45,17 @@ int main(int argc, char const* argv[]) {
             fclose(file);
             return 1;
         }
+        if (read == sizeof(bytes) && memcmp(bytes, last_bytes, sizeof(bytes)) == 0) {
+            if (!last_was_a_repeat) {
+                printf("*\n");
+            }
+            last_was_a_repeat = true;
+            continue;
+        } else {
+            last_was_a_repeat = false;
+        }
+        memcpy(last_bytes, bytes, sizeof(bytes));
+
         printf("%08x  ", index);
         for (int i = 0; i < read; i++) {
             printf("%02x%s", bytes[i], ends[i & 7]);
