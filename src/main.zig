@@ -53,7 +53,10 @@ pub fn main() !u8 {
     defer bw.flush() catch {};
     const stdout = bw.writer();
 
+    var last_was_a_repeat = false;
+    var last_bytes = [1]u8{0} ** 16;
     var bytes: [16]u8 = undefined;
+    bytes[0] = 1; // to make sure `last_bytes` and `bytes` are not equal
     var index: usize = 0;
     var read: usize = undefined;
 
@@ -64,6 +67,17 @@ pub fn main() !u8 {
         };
 
         if (read == 0) break;
+
+        const is_repeat = std.mem.eql(u8, bytes[0..read], &last_bytes);
+        if (is_repeat) {
+            if (!last_was_a_repeat) {
+                try stdout.print("*\n", .{});
+            }
+            last_was_a_repeat = true;
+            continue;
+        } else {
+            last_was_a_repeat = false; 
+        }
 
         try stdout.print("{x:0<8}  ", .{index});
         {
@@ -89,6 +103,8 @@ pub fn main() !u8 {
             }
         }
         try stdout.print("|\n", .{});
+
+        last_bytes = bytes;
     }
     try stdout.print("{x:0<8}\n", .{index});
 
