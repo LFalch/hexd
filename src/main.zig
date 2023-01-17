@@ -79,11 +79,11 @@ pub fn main() !u8 {
             last_was_a_repeat = false; 
         }
 
-        try stdout.print("{x:0<8}  ", .{index});
+        try stdout.print("{x:0>8}  ", .{index});
         {
             var i: usize = 0;
             while (i < read) : (i += 1) {
-                try stdout.print("{x:0<2}{s}", .{bytes[i], ends[i & 7]});
+                try stdout.print("{x:0>2}{s}", .{bytes[i], ends[i & 7]});
             }
         }
         if (read != 16) {
@@ -106,7 +106,7 @@ pub fn main() !u8 {
 
         last_bytes = bytes;
     }
-    try stdout.print("{x:0<8}\n", .{index});
+    try stdout.print("{x:0>8}\n", .{index});
 
     return 0;
 }
