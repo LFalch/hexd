@@ -3,7 +3,7 @@ const std = @import("std");
 const BufWriter = std.io.BufferedWriter(4096, std.fs.File.Writer);
 
 pub inline fn printspaces(stdout: BufWriter.Writer, spaces: u6) BufWriter.Error!void {
-    const length = std.math.maxInt(u6)+1;
+    const length = std.math.maxInt(u6) + 1;
     const space = " " ** length;
 
     try stdout.writeAll(space[0..spaces]);
@@ -22,7 +22,7 @@ pub fn main() !u8 {
     defer args.deinit();
 
     const program = args.next() orelse return error.NoProgramArg;
-    var inputPath = args.next();
+    const inputPath = args.next();
 
     if (args.skip()) {
         try errPrint("Usage: {s} [file]\n\tReads from STDIN if no argument is given.\n", .{program});
@@ -44,7 +44,8 @@ pub fn main() !u8 {
             try errPrint("Could not open file: {s}\n", .{@errorName(err)});
             return 1;
         }
-    else std.io.getStdIn();
+    else
+        std.io.getStdIn();
     defer file.close();
     var br = std.io.bufferedReader(file.reader());
     const reader = br.reader();
@@ -55,8 +56,7 @@ pub fn main() !u8 {
 
     var last_was_a_repeat = false;
     var last_bytes = [1]u8{0} ** 16;
-    var bytes: [16]u8 = undefined;
-    bytes[0] = 1; // to make sure `last_bytes` and `bytes` are not equal
+    var bytes: [16]u8 = [1]u8{1} ++ [1]u8{undefined} ** 15; // `1` at start to make sure `last_bytes` and `bytes` are not equal
     var index: usize = 0;
     var read: usize = undefined;
 
@@ -76,25 +76,25 @@ pub fn main() !u8 {
             last_was_a_repeat = true;
             continue;
         } else {
-            last_was_a_repeat = false; 
+            last_was_a_repeat = false;
         }
 
         try stdout.print("{x:0>8}  ", .{index});
         {
             var i: usize = 0;
             while (i < read) : (i += 1) {
-                try stdout.print("{x:0>2}{s}", .{bytes[i], ends[i & 7]});
+                try stdout.print("{x:0>2}{s}", .{ bytes[i], ends[i & 7] });
             }
         }
         if (read != 16) {
-            const numSpaces = @intCast(u6, 1 + (16 - read) * 3 + @divTrunc(15 - read, 8));
+            const numSpaces: u6 = @intCast(1 + (16 - read) * 3 + @divTrunc(15 - read, 8));
             try printspaces(stdout, numSpaces);
         }
         try stdout.print("|", .{});
         {
             var i: usize = 0;
             while (i < read) : (i += 1) {
-                var c: u8 = bytes[i];
+                const c = bytes[i];
                 if (c < 0x20 or c >= 0x7f) {
                     try stdout.print(".", .{});
                 } else {
